@@ -59,7 +59,7 @@ public partial class TagUserControl : UserControl
         //    txtRichMsg.SelectionColor = Color.Red;
         //    txtRichMsg.SelectedText = Message;
         //}
-        txtRichMsg.Text = Message;
+        txtRichMsg.Rtf = Message;
         int H = GotLine * txtRichMsg.Font.Height + txtRichMsg.Margin.Vertical;
         txtRichMsg.Height = H;
         txtRichMsg.Visible = true;
