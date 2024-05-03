@@ -56,6 +56,8 @@ public partial class FormWelcome : Form
             Program.App.Info.Name = textBoxName.Text;
             Program.App.Info.IP = Program.OwnIP;
             Program.App.ServerIP = txtIP.Text;
+            Program.App.Server?.Dispose();
+            Program.App.Client?.Dispose();
             //Creating SERVER
             Program.App.Server = new MessengerServer(Program.App.Info.IP, MessengerServer.ListenerPort);
             //Server is also a Client. So creating a client.

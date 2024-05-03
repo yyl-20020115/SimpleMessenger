@@ -11,7 +11,7 @@ namespace SimpleMessenger;
 public delegate void SocketListenerMsg(byte[] data, int dataAvailable);
 public delegate void ServerNotExist();
 
-public class SocketListener
+public class SocketListener : IDisposable
 {
     public static string SMMP_MAGIC = "SMMP";
     public static int MaxMessageLength = int.MaxValue;
@@ -21,9 +21,10 @@ public class SocketListener
 
     public int Port;
     private bool serverRunning = true;
-    private readonly SocketListenerMsg _handler;
-    private readonly Thread listenerThread = null;
-    private readonly TcpListener listener;
+    private bool disposedValue;
+    private SocketListenerMsg _handler;
+    private Thread listenerThread = null;
+    private TcpListener listener;
 
 
     public SocketListener(int port, SocketListenerMsg handler)
@@ -51,7 +52,7 @@ public class SocketListener
                 Thread.Sleep(10);
             else
             {
-                var client = listener.AcceptTcpClient();
+                using var client = listener.AcceptTcpClient();
                 // read data if available
                 if (client.Available > 0)
                 {
@@ -65,6 +66,7 @@ public class SocketListener
                         {
                             stream.Read(buffer, 0, buffer.Length);
                             var length = BitConverter.ToInt32(buffer, 0);
+
                             if (length <= MaxMessageLength)
                             {
                                 buffer = new byte[length];
@@ -80,11 +82,9 @@ public class SocketListener
                         }
                     }
                 }
-                // close socket
-                client.Close();
             }
         }
-        listener.Stop();
+        listener?.Stop();
     }
 
 
@@ -139,5 +139,34 @@ public class SocketListener
                 }
             }
         });
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposedValue)
+        {
+            if (disposing)
+            {
+                // TODO: 释放托管状态(托管对象)
+            }
+
+            this.listener?.Stop();
+            this.listener = null;
+            disposedValue = true;
+        }
+    }
+
+    // // TODO: 仅当“Dispose(bool disposing)”拥有用于释放未托管资源的代码时才替代终结器
+    // ~SocketListener()
+    // {
+    //     // 不要更改此代码。请将清理代码放入“Dispose(bool disposing)”方法中
+    //     Dispose(disposing: false);
+    // }
+
+    public void Dispose()
+    {
+        // 不要更改此代码。请将清理代码放入“Dispose(bool disposing)”方法中
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 }

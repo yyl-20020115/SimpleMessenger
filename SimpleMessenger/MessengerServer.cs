@@ -5,7 +5,7 @@ using System.Timers;
 namespace SimpleMessenger;
 
 
-public class MessengerServer
+public class MessengerServer : IDisposable
 {
     public static int ListenerPort = 12345;
 
@@ -189,7 +189,9 @@ public class MessengerServer
     /// </summary>
     public void Dispose()
     {
+
         listener.RunServer = false;
+        this.listener.Dispose();
         Program.App.Server.MyList.Clear();
     }
 }

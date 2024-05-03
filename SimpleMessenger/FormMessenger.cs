@@ -132,16 +132,17 @@ public partial class FormMessenger : Form
             if (Program.App.Client.ClientDic.ContainsKey(remoteID))
             {
                 Program.App.Forms[remoteID].GetMessag(Program.App.Client.ClientDic[remoteID], msg,line);
-                if (Program.App.Forms[remoteID].Visible == false)
+                if (!Program.App.Forms[remoteID].Visible)
                 {
-                    ClientInfo tempinfo = new();
-                    tempinfo = Program.App.Client.ClientDic[remoteID];
-                    int x = listClients.Items.IndexOf(tempinfo);
-                    //Program.App.Client.NumberoOfMessage[tempinfo.ClientID]++;
-                    //Program.App.Client.NumberoOfMessageString[tempinfo.ClientID] = "(" + Program.App.Client.NumberoOfMessage[tempinfo.ClientID].ToString() + ")";
-                    listClients.Items.RemoveAt(x);
-                    listClients.Items.Add(tempinfo);
-                    listClients.BackColor = Color.Pink;
+                    if(Program.App.Client.ClientDic.TryGetValue(remoteID ,out var cinfo))
+                    {
+                        int x = listClients.Items.IndexOf(cinfo);
+                        //Program.App.Client.NumberoOfMessage[tempinfo.ClientID]++;
+                        //Program.App.Client.NumberoOfMessageString[tempinfo.ClientID] = "(" + Program.App.Client.NumberoOfMessage[tempinfo.ClientID].ToString() + ")";
+                        listClients.Items.RemoveAt(x);
+                        listClients.Items.Add(cinfo);
+                        listClients.BackColor = Color.Pink;
+                    }
                 }
             }
         }
