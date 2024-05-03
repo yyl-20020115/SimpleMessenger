@@ -7,32 +7,24 @@ using System.Collections.Generic;
 
 namespace SimpleMessenger;
 
-/// <summary>
-/// **********************The main entry point for the application**********************
-/// </summary>
 public static class Program
 {
     // To handle Some Race Condition these Lockobject has introduced.
     public static readonly object AliveLocker = new();
     public static readonly object MyLocker = new();
-
     public static readonly ApplicationData App = new();
-    
     public static string OwnIP;
-   
-   
+      
     [STAThread]
     public static void Main()
     {
         // For Getting Own IP. 
         var host = Dns.GetHostEntry(Dns.GetHostName());
         var ips = new List<string>();
-        foreach (var ip in host.AddressList.OrderByDescending(ip=>ip.ToString()))
+        foreach (var ip in host.AddressList)
         {
             if (ip.AddressFamily == AddressFamily.InterNetwork)
-            {
                 ips.Add(ip.ToString());
-            }
         }
         if (ips.Count > 0) 
         {
@@ -57,9 +49,7 @@ public static class Program
         foreach (var form in App.Forms.Values)
         {
             form.Close();
-
             form.Dispose();
-
         }
         App.Forms.Clear();
     }

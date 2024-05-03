@@ -339,24 +339,6 @@
   <data name="menuStrip.Font" type="System.Drawing.Font, System.Drawing">
     <value>Segoe UI, 9.75pt, style=Bold</value>
   </data>
-  <data name="filwToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>71, 21</value>
-  </data>
-  <data name="filwToolStripMenuItem.Text" xml:space="preserve">
-    <value>文件(&amp;F)</value>
-  </data>
-  <data name="optionsToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>74, 21</value>
-  </data>
-  <data name="optionsToolStripMenuItem.Text" xml:space="preserve">
-    <value>选项(&amp;O)</value>
-  </data>
-  <data name="helpToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>74, 21</value>
-  </data>
-  <data name="helpToolStripMenuItem.Text" xml:space="preserve">
-    <value>帮助(&amp;H)</value>
-  </data>
   <data name="menuStrip.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
   </data>
@@ -381,11 +363,23 @@
   <data name="&gt;&gt;menuStrip.ZOrder" xml:space="preserve">
     <value>11</value>
   </data>
+  <data name="filwToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>71, 21</value>
+  </data>
+  <data name="filwToolStripMenuItem.Text" xml:space="preserve">
+    <value>文件(&amp;F)</value>
+  </data>
   <data name="leaveToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>129, 22</value>
   </data>
   <data name="leaveToolStripMenuItem.Text" xml:space="preserve">
     <value>退出(&amp;X)</value>
+  </data>
+  <data name="optionsToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>74, 21</value>
+  </data>
+  <data name="optionsToolStripMenuItem.Text" xml:space="preserve">
+    <value>选项(&amp;O)</value>
   </data>
   <data name="messageSoundToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>161, 22</value>
@@ -404,6 +398,12 @@
   </data>
   <data name="oFFToolStripMenuItem.Text" xml:space="preserve">
     <value>关闭(&amp;F)</value>
+  </data>
+  <data name="helpToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>74, 21</value>
+  </data>
+  <data name="helpToolStripMenuItem.Text" xml:space="preserve">
+    <value>帮助(&amp;H)</value>
   </data>
   <data name="manualToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>132, 22</value>

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Timers;
 
 namespace SimpleMessenger;
@@ -41,9 +39,6 @@ public class MessengerClient
     public string SelfIP;
     readonly Timer Timer = new(3000);
     readonly Timer TimerForAlive = new(3000);
-
-
-
 
     /// <summary>
     /// Sharing Dictionary instance with other class
@@ -92,7 +87,7 @@ public class MessengerClient
             Type = (int)ClientMessageType.Join
         };
 
-        Listener.Send(this.ServerIP, this.ServerPort, msg.Serialize());
+        Listener.SendData(this.ServerIP, this.ServerPort, msg.Serialize());
 
         Timer.Elapsed += new ElapsedEventHandler(Timer_Elapsed);
         Timer.Start();
@@ -105,7 +100,7 @@ public class MessengerClient
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    void TimerForAlive_Elapsed(object sender, ElapsedEventArgs e)
+    private void TimerForAlive_Elapsed(object sender, ElapsedEventArgs e)
     {
         TimerForAlive.Stop();
         //throw new NotImplementedException();
@@ -114,7 +109,7 @@ public class MessengerClient
             Type = (int)ClientMessageType.Alive,
             Info = Program.App.Info
         };
-        Listener.Send(Program.App.ServerIP,this.ServerPort, m.Serialize());
+        Listener.SendData(Program.App.ServerIP,this.ServerPort, m.Serialize());
         TimerForAlive.Start();
     }
 
@@ -125,7 +120,7 @@ public class MessengerClient
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    void Timer_Elapsed(object sender, ElapsedEventArgs e)
+    private void Timer_Elapsed(object sender, ElapsedEventArgs e)
     {
         ConnectionStatus(ServerIP, false);
         Timer.Stop();
@@ -213,7 +208,6 @@ public class MessengerClient
         {
             form.Close();
             form.Dispose();
-
         }
         Program.App.Forms.Clear();
         Program.App.Client.ClientDic.Clear();

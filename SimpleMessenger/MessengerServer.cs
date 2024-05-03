@@ -4,11 +4,6 @@ using System.Timers;
 
 namespace SimpleMessenger;
 
-/// <summary>
-///   ****************************** This Class is  For SERVER****************************
-///     ****Here Strat Server's SocketListening thread, Message Analysis happens, and hold other neccesary info for Server*********
-/// </summary>
-/// 
 
 public class MessengerServer
 {
@@ -20,15 +15,16 @@ public class MessengerServer
     private readonly SocketListener listener;
     private readonly string ownIP;
     private readonly Timer serverTimer = new(6000);
-
+    private int ownPort = 0;
 
     /// <summary>
     /// Defalt Constructor.
     /// </summary>
     /// <param name="ownIP"></param>
-    public MessengerServer(string ownIP)
+    public MessengerServer(string ownIP, int ownPort)
     {
         this.ownIP = ownIP;
+        this.ownPort = ownPort;
         listener = new SocketListener(ListenerPort, MsgFromClient);
         serverTimer.Elapsed += new ElapsedEventHandler(ServerTimer_Elapsed);
         serverTimer.Start();
@@ -69,13 +65,13 @@ public class MessengerServer
                         byte[] data3 = M.Serialize();
                         foreach (var clients in MyList.Values)
                         {
-                            listener.Send(clients.IP, clients.ListenPort, data3);
+                            listener.SendData(clients.IP, clients.ListenPort, data3);
                         }
                         ClientMessage m = new()
                         {
                             Type = (int)ClientMessageType.DisconnectedByServer
                         };
-                        listener.Send(info.IP, info.ListenPort, m.Serialize());
+                        listener.SendData(info.IP, info.ListenPort, m.Serialize());
                     }
                 }
                 serverTimer.Start();
@@ -115,11 +111,11 @@ public class MessengerServer
                     {
                         m.CurrentClients.Add(clients);
                         // Send all clients the join msg
-                        listener.Send(clients.IP, clients.ListenPort, data2);
+                        listener.SendData(clients.IP, clients.ListenPort, data2);
                     }
 
                     // Sending new client server's client list
-                    listener.Send(msg.Info.IP, msg.Info.ListenPort, m.Serialize());
+                    listener.SendData(msg.Info.IP, msg.Info.ListenPort, m.Serialize());
                     //// Add this client to server's own client list
                     MyList.Add(msg.Info.ClientID, msg.Info);
                 }
@@ -129,7 +125,7 @@ public class MessengerServer
 
             case ClientMessageType.Msg:
 
-                listener.Send(msg.Info.IP, msg.Info.ListenPort,data);
+                listener.SendData(msg.Info.IP, msg.Info.ListenPort,data);
                 break;
 
 
@@ -145,7 +141,7 @@ public class MessengerServer
                     byte[] data3 = M.Serialize();
                     foreach (ClientInfo c in MyList.Values)
                     {
-                        listener.Send(c.IP, c.ListenPort, data3);
+                        listener.SendData(c.IP, c.ListenPort, data3);
                     }
                 }
                 if (Program.App.Info.ClientID == msg.Info.ClientID)
@@ -160,7 +156,7 @@ public class MessengerServer
 
                 foreach (var c in MyList.Values)
                 {
-                    listener.Send(c.IP, c.ListenPort, msg.Serialize());
+                    listener.SendData(c.IP, c.ListenPort, msg.Serialize());
                 }
                 break;
 
@@ -168,7 +164,7 @@ public class MessengerServer
 
             case ClientMessageType.Buzz:
 
-                listener.Send(msg.Info.IP, msg.Info.ListenPort,data);
+                listener.SendData(msg.Info.IP, msg.Info.ListenPort,data);
                 break;
 
             case ClientMessageType.Alive:

@@ -9,7 +9,7 @@ namespace SimpleMessenger;
 
 public partial class FormMessenger : Form
 {
-    FormWelcome welcome;
+    private FormWelcome welcome;
     private int originalHight;
     private int StatusNumber = 0; 
 
@@ -94,7 +94,7 @@ public partial class FormMessenger : Form
     /// <summary>
     /// if client is disconnected by server.client window will be disappeared and show user a message.
     /// </summary>
-    void Client_DisconnectByServer()
+    private void Client_DisconnectByServer()
     {
         if (this.InvokeRequired)
             this.Invoke(new disBySer(Client_DisconnectByServer), new object[] { });
@@ -121,7 +121,7 @@ public partial class FormMessenger : Form
     /// <param name="msg"></param>
     /// <param name="remoteID"></param>
     /// <param name="line"></param>
-    void Client_NewMsg(ClientInfo info, string msg, int remoteID, int line)
+    private void Client_NewMsg(ClientInfo info, string msg, int remoteID, int line)
     {
         if (this.InvokeRequired)
         {
@@ -154,7 +154,7 @@ public partial class FormMessenger : Form
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    void ListClients_SelectedIndexChanged(object sender, EventArgs e)
+    private void ListClients_SelectedIndexChanged(object sender, EventArgs e)
     {
         if (listClients.SelectedIndex!=-1)
         {
@@ -174,10 +174,7 @@ public partial class FormMessenger : Form
         }       
     }
 
- 
 
-
-   
     /// <summary>
     /// chat window show.
     /// </summary>
@@ -190,13 +187,13 @@ public partial class FormMessenger : Form
     }
 
 
-    
+
     /// <summary>
     /// Form closing event...
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    void FormMessenger_FormClosing(object sender, FormClosingEventArgs e)
+    private void FormMessenger_FormClosing(object sender, FormClosingEventArgs e)
     {
         if (Program.App.IsServer)
         {
@@ -222,7 +219,7 @@ public partial class FormMessenger : Form
     /// are getting newly updated client list from server
     /// </summary>
     /// <param name="l"></param>
-    void GetList(List<ClientInfo> l)
+    private void GetList(List<ClientInfo> l)
     {
         if (listClients.InvokeRequired)
         {
@@ -248,16 +245,12 @@ public partial class FormMessenger : Form
     }
 
 
-
-
-
-
     delegate void ServerLeaved(ClientInfo info);
     /// <summary>
     /// if someone leaved from messenger, other clients will remove him/her from their list. 
     /// </summary>
     /// <param name="info"></param>
-    void RemoveFromList(ClientInfo info)
+    private void RemoveFromList(ClientInfo info)
     {
         if (listClients.InvokeRequired)
         {
@@ -272,9 +265,6 @@ public partial class FormMessenger : Form
     }
 
 
-
-
-   
     /// <summary>
     /// Form2(Client window) is expendable. By clicking this button window will expand.
     /// </summary>
@@ -295,8 +285,6 @@ public partial class FormMessenger : Form
         }
     }
 
-
-
     /// <summary>
     /// As Form2(Client window) is expendable. By clicking this button window will hide the expanded area.
     /// </summary>
@@ -310,10 +298,6 @@ public partial class FormMessenger : Form
         this.Width = originalHight;
     }
 
-
-
-
-   
     /// <summary>
     /// setting font for writing Status/public message in Testbox.
     /// </summary>
@@ -326,9 +310,6 @@ public partial class FormMessenger : Form
     }
 
 
-
-
-   
     /// <summary>
     /// This button send Public Message/Status to all other clients.
     /// </summary>
@@ -344,13 +325,11 @@ public partial class FormMessenger : Form
         msg.Info.ClientID = Program.App.Info.ClientID;
         msg.Info.Name = Program.App.Info.Name;
 
-        Program.App.Client.Listener.Send(Program.App.ServerIP,MessengerServer.ListenerPort,msg.Serialize());
+        Program.App.Client.Listener.SendData(Program.App.ServerIP,MessengerServer.ListenerPort,msg.Serialize());
         txtStatus.Font = new Font(txtStatus.Font, FontStyle.Italic);
         txtStatus.ForeColor = Color.LightGray;
         txtStatus.Text = "";
     }
-
-
 
 
     delegate void ServerStatus(ClientInfo info, string sts, ClientMessageType type);
@@ -359,7 +338,7 @@ public partial class FormMessenger : Form
     /// </summary>
     /// <param name="info"></param>
     /// <param name="sts"></param>
-    void Client_NewMStatus(ClientInfo info, string sts, ClientMessageType type)
+    private void Client_NewMStatus(ClientInfo info, string sts, ClientMessageType type)
     {
         if (richTxtNewsFeed.InvokeRequired)
         {
@@ -422,17 +401,12 @@ public partial class FormMessenger : Form
         }
     }
 
-
-
-
-
-   
     delegate void ServerBuzz(int senderID);
     /// <summary>
     /// When a client get Buzz from other, than this news will make change in Form3(Chat box).
     /// </summary>
     /// <param name="senderID"></param>
-    void Client_NewBuzz(int senderID)
+    private void Client_NewBuzz(int senderID)
     {
         if (this.InvokeRequired)
         {
@@ -457,10 +431,6 @@ public partial class FormMessenger : Form
         }
 
     }
-
-
-
-
     
     /// <summary>
     /// This is the menu at the top of Client Window. If client  click Leave option, there will send a leave
@@ -480,7 +450,7 @@ public partial class FormMessenger : Form
 
         var data = m.Serialize();
 
-        Program.App.Client.Listener.Send(Program.App.ServerIP, MessengerServer.ListenerPort, data);
+        Program.App.Client.Listener.SendData(Program.App.ServerIP, MessengerServer.ListenerPort, data);
         if (Program.App.IsServer)
         {
             Program.App.Server?.Dispose();
@@ -493,9 +463,6 @@ public partial class FormMessenger : Form
         this.Close();
     }
 
-
-
-
    /// <summary>
     /// This is the menu at the top of Client Window. Client can ON the Message tone,
    /// </summary>
@@ -505,9 +472,6 @@ public partial class FormMessenger : Form
     {
         Program.App.Client.MessageSound = true;
     }
-
-
-
 
     /// <summary>
     /// This is the menu at the top of Client Window. Client can OFF the Message tone,

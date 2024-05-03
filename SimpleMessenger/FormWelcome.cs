@@ -32,14 +32,12 @@ public partial class FormWelcome : Form
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    void FormWelcome_FormClosing(object sender, FormClosingEventArgs e)
+    private void FormWelcome_FormClosing(object sender, FormClosingEventArgs e)
     {
         this.Dispose();
         this.Close();
     }
     
-
-
 
     /// <summary>
     /// This will Block execute if Client start a server.
@@ -48,24 +46,24 @@ public partial class FormWelcome : Form
     /// <param name="e"></param>
     private void StartServerButtonClick(object sender, EventArgs e)
     {
-        if (textBoxName.Text != "")
+        if (textBoxName.Text == "")
+        {
+            MessageBox.Show("请首先输入你的名字!");
+        }
+        else
         {
             Program.App.IsServer = true;
             Program.App.Info.Name = textBoxName.Text;
             Program.App.Info.IP = Program.OwnIP;
             Program.App.ServerIP = txtIP.Text;
             //Creating SERVER
-            Program.App.Server = new MessengerServer(Program.App.Info.IP);
+            Program.App.Server = new MessengerServer(Program.App.Info.IP, MessengerServer.ListenerPort);
             //Server is also a Client. So creating a client.
             Program.App.Client = new MessengerClient();
             Program.App.Client.ConnectionStatus += new SERVER_CONNECTION_DELIGATE(Client_ConnectionStatus);
-            Program.App.Client.Start("127.0.0.1",MessengerServer.ListenerPort, textBoxName.Text);
+            Program.App.Client.Start("127.0.0.1", MessengerServer.ListenerPort, textBoxName.Text);
         }
-        else
-            MessageBox.Show("请首先输入你的名字!");
     }
-
-
 
     /// <summary>
     /// This will execiute if client only give input the server's ip and join
@@ -74,32 +72,37 @@ public partial class FormWelcome : Form
     /// <param name="e"></param>
     private void JoinButton_Click(object sender, EventArgs e)
     {
-        if (textBoxName.Text != "" && txtIP.Text != "")
-        {
-            Program.App.Info.Name = textBoxName.Text;
-            Program.App.ServerIP = txtIP.Text;
-            Program.App.Info.IP = Program.OwnIP;
-            // Creating Client...
-            Program.App.Client = new MessengerClient();
-            Program.App.Client.ConnectionStatus += new SERVER_CONNECTION_DELIGATE(Client_ConnectionStatus);
-            Program.App.Client.Start(txtIP.Text,MessengerServer.ListenerPort, Program.App.Info.Name);
-        }
-        else
+        if (textBoxName.Text == "" || txtIP.Text == "")
         {
             MessageBox.Show("请首先输入你的名字和服务器IP，然后再点击加入!");
         }
+        else
+        {
+            if (txtIP.Text == Program.OwnIP)
+            {
+                StartServerButtonClick(sender, e);
+                return;
+            }
+            else
+            {
+                Program.App.Info.Name = textBoxName.Text;
+                Program.App.ServerIP = txtIP.Text;
+                Program.App.Info.IP = Program.OwnIP;
+                // Creating Client...
+                Program.App.Client = new MessengerClient();
+                Program.App.Client.ConnectionStatus += new SERVER_CONNECTION_DELIGATE(Client_ConnectionStatus);
+                Program.App.Client.Start(txtIP.Text, MessengerServer.ListenerPort, Program.App.Info.Name);
+            }
+        }
     }
 
-
-
-
     delegate void CONNECTION_STATUS(string ip, bool success);
-   /// <summary>
+    /// <summary>
     /// Confirmoing If Client is connected with Server
-   /// </summary>
-   /// <param name="serverIP"></param>
-   /// <param name="success"></param>    
-    void Client_ConnectionStatus(string serverIP, bool success)
+    /// </summary>
+    /// <param name="serverIP"></param>
+    /// <param name="success"></param>    
+    private void Client_ConnectionStatus(string serverIP, bool success)
     {    
         if (txtIP.InvokeRequired)
         {

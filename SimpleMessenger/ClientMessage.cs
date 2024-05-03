@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.IO;
-using System.Xml.Serialization;
 using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 
 namespace SimpleMessenger;
 
-[Serializable]
 public enum ClientMessageType : int
 {
     Msg = 0,
@@ -49,7 +45,7 @@ public class ClientMessage
     [YamlMember]
     public int From;
     [YamlMember]
-    public byte[] ProfilePic = new byte[1];
+    public byte[] ProfilePic = [];
 
     /// <summary>
     /// Defalt constructor.

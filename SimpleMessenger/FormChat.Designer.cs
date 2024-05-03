@@ -71,7 +71,7 @@
             this.btnBuZZ.Tag = "Clip";
             this.btnBuZZ.Text = "震动(&V)";
             this.btnBuZZ.UseVisualStyleBackColor = true;
-            this.btnBuZZ.Click += new System.EventHandler(this.btnBuZZ_Click);
+            this.btnBuZZ.Click += new System.EventHandler(this.BtnBuZZ_Click);
             // 
             // flowLayoutPanel1
             // 

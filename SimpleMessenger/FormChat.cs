@@ -1,18 +1,8 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Media;
-using System.IO;
-using System.Text;
 
 namespace SimpleMessenger;
-
-
-/// <summary>
-/// **************************** This Form(3) is CHAT WINDOW************************
-/// *************Every Client in the list has a own chat box***************
-/// ********Normally this chat box is hidden. When User start a chat with someone, than it appers***
-/// </summary>
-
 
 public partial class FormChat : Form
 {
@@ -54,7 +44,7 @@ public partial class FormChat : Form
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    void FormChat_FormClosing(object sender, FormClosingEventArgs e)
+    private void FormChat_FormClosing(object sender, FormClosingEventArgs e)
     {
         this.Hide();
         e.Cancel = true;
@@ -80,7 +70,7 @@ public partial class FormChat : Form
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    void SendMsgBox_KeyDown(object sender, KeyEventArgs e)
+    private void SendMsgBox_KeyDown(object sender, KeyEventArgs e)
     {
         if (checkBoxEnter.Checked == false) return;
         ShiftEnter = false;
@@ -97,7 +87,7 @@ public partial class FormChat : Form
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    void SendMsgBox_KeyPress(object sender, KeyPressEventArgs e)
+    private void SendMsgBox_KeyPress(object sender, KeyPressEventArgs e)
     {
         if (checkBoxEnter.Checked == false) return;
         if (e.KeyChar == 13 && ShiftEnter==false)
@@ -139,7 +129,7 @@ public partial class FormChat : Form
             m.From = Program.App.Info.ClientID;
             var data = m.Serialize();
 
-            Program.App.Client.Listener.Send(Program.App.Client.ServerIP, MessengerServer.ListenerPort,data);
+            Program.App.Client.Listener.SendData(Program.App.Client.ServerIP, MessengerServer.ListenerPort,data);
             TagUserControl myUsercon = new TagUserControl(Program.App.Info, SendMessageBox.Text, lineNumber);
             flowLayoutPanel1.Controls.Add(myUsercon);
             flowLayoutPanel1.VerticalScroll.Value = flowLayoutPanel1.VerticalScroll.Maximum;
@@ -243,7 +233,7 @@ public partial class FormChat : Form
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void btnBuZZ_Click(object sender, EventArgs e)
+    private void BtnBuZZ_Click(object sender, EventArgs e)
     {
         ClientMessage m = new()
         {
@@ -252,7 +242,7 @@ public partial class FormChat : Form
             From = Program.App.Info.ClientID
         };
 
-        Program.App.Client.Listener.Send(Program.App.Client.ServerIP, MessengerServer.ListenerPort, m.Serialize());
+        Program.App.Client.Listener.SendData(Program.App.Client.ServerIP, MessengerServer.ListenerPort, m.Serialize());
     }
 
 }

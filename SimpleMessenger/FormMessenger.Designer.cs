@@ -215,6 +215,7 @@
             this.Controls.Add(this.txtStatus);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.menuStrip);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "FormMessenger";

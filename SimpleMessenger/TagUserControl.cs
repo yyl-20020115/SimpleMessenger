@@ -6,17 +6,15 @@ namespace SimpleMessenger;
 
 public partial class TagUserControl : UserControl
 {
-
-    private ClientInfo info;
-    private string msg;
-    private int getline;
-
+    private readonly ClientInfo Info;
+    private readonly string Message;
+    private readonly int GotLine;
 
     public TagUserControl(ClientInfo info, string msg, int line)
     {
-        this.info = info;
-        this.msg = msg;
-        getline = line;
+        this.Info = info;
+        this.Message = msg;
+        GotLine = line;
         InitializeComponent();
     }
 
@@ -30,16 +28,15 @@ public partial class TagUserControl : UserControl
         txtRichMsg.ForeColor = Color.Black;
         lblName.ForeColor = Color.Black;
         lblDate.ForeColor = Color.Black;
-        if (info.ClientID == Program.App.Info.ClientID)
+        if (Info.ClientID == Program.App.Info.ClientID)
         {
             lblName.Text = "你";
             txtRichMsg.BackColor = Color.CornflowerBlue;
             this.BackColor = Color.CornflowerBlue;
-
         }
         else
         {
-            lblName.Text = info.Name;
+            lblName.Text = Info.Name;
         }
         ChangeHeight();
     }
@@ -52,16 +49,18 @@ public partial class TagUserControl : UserControl
     private void ChangeHeight()
     {
         txtRichMsg.Visible = false;
-        if (msg != "BuZZ!!!!!!!!")
-            txtRichMsg.Text = msg;
-        else
-        {
-            Font font1 = new Font(txtRichMsg.Font, FontStyle.Bold);
-            txtRichMsg.SelectionFont = font1;
-            txtRichMsg.SelectionColor = Color.Red;
-            txtRichMsg.SelectedText = msg;
-        }
-        int H = getline * txtRichMsg.Font.Height + txtRichMsg.Margin.Vertical;
+        //if (Message != "BuZZ!!!!!!!!")
+        //{
+        //}
+        //else
+        //{
+        //    Font font1 = new Font(txtRichMsg.Font, FontStyle.Bold);
+        //    txtRichMsg.SelectionFont = font1;
+        //    txtRichMsg.SelectionColor = Color.Red;
+        //    txtRichMsg.SelectedText = Message;
+        //}
+        txtRichMsg.Text = Message;
+        int H = GotLine * txtRichMsg.Font.Height + txtRichMsg.Margin.Vertical;
         txtRichMsg.Height = H;
         txtRichMsg.Visible = true;
         string myDate;

@@ -113,7 +113,7 @@ public class SocketListener
     /// <param name="port"></param>
     /// <param name="data"></param>
     /// <param name="broadCast"></param>
-    public void Send(string ip, int port, byte[] data, bool broadCast = false)
+    public void SendData(string ip, int port, byte[] data)
     {
         Task.Run(() => {
             try
