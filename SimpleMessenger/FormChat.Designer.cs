@@ -42,7 +42,7 @@
             this.SendMessageBox.BackColor = System.Drawing.Color.Thistle;
             this.SendMessageBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.SendMessageBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.SendMessageBox.Location = new System.Drawing.Point(0, 340);
+            this.SendMessageBox.Location = new System.Drawing.Point(0, 321);
             this.SendMessageBox.Multiline = true;
             this.SendMessageBox.Name = "SendMessageBox";
             this.SendMessageBox.Size = new System.Drawing.Size(270, 81);
@@ -52,7 +52,7 @@
             // 
             this.btnSend.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSend.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnSend.Location = new System.Drawing.Point(183, 305);
+            this.btnSend.Location = new System.Drawing.Point(183, 286);
             this.btnSend.Name = "btnSend";
             this.btnSend.Size = new System.Drawing.Size(87, 29);
             this.btnSend.TabIndex = 3;
@@ -64,7 +64,7 @@
             // 
             this.btnBuZZ.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnBuZZ.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnBuZZ.Location = new System.Drawing.Point(104, 305);
+            this.btnBuZZ.Location = new System.Drawing.Point(104, 286);
             this.btnBuZZ.Name = "btnBuZZ";
             this.btnBuZZ.Size = new System.Drawing.Size(73, 29);
             this.btnBuZZ.TabIndex = 4;
@@ -83,7 +83,7 @@
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 4);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(270, 299);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(270, 280);
             this.flowLayoutPanel1.TabIndex = 5;
             this.flowLayoutPanel1.WrapContents = false;
             // 
@@ -95,7 +95,7 @@
             this.checkBoxEnter.CheckState = System.Windows.Forms.CheckState.Checked;
             this.checkBoxEnter.Cursor = System.Windows.Forms.Cursors.Hand;
             this.checkBoxEnter.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
-            this.checkBoxEnter.Location = new System.Drawing.Point(0, 312);
+            this.checkBoxEnter.Location = new System.Drawing.Point(0, 293);
             this.checkBoxEnter.Name = "checkBoxEnter";
             this.checkBoxEnter.Size = new System.Drawing.Size(102, 16);
             this.checkBoxEnter.TabIndex = 6;
@@ -107,10 +107,9 @@
             // FormChat
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.AutoScroll = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.Color.Purple;
-            this.ClientSize = new System.Drawing.Size(270, 418);
+            this.ClientSize = new System.Drawing.Size(270, 399);
             this.Controls.Add(this.btnBuZZ);
             this.Controls.Add(this.checkBoxEnter);
             this.Controls.Add(this.flowLayoutPanel1);

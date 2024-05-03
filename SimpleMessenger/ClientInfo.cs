@@ -2,10 +2,6 @@
 
 namespace SimpleMessenger;
 
-/// <summary>
-///  ************************ This class is for store Client Information**************************
-/// </summary>
-
 [Serializable]
 public class ClientInfo
 {

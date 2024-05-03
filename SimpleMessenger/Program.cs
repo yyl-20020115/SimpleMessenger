@@ -22,13 +22,12 @@ public static class Program
    
    
     [STAThread]
-    
     public static void Main()
     {
         // For Getting Own IP. 
         var host = Dns.GetHostEntry(Dns.GetHostName());
         var ips = new List<string>();
-        foreach (IPAddress ip in host.AddressList.OrderByDescending(ip=>ip.ToString()))
+        foreach (var ip in host.AddressList.OrderByDescending(ip=>ip.ToString()))
         {
             if (ip.AddressFamily == AddressFamily.InterNetwork)
             {

@@ -7,10 +7,6 @@ using System.Xml.Serialization;
 
 namespace SimpleMessenger;
 
-/// <summary>
-/// **************************************This Class define Message Protocol*****************************
-/// </summary>
-
 [Serializable]
 public enum ClientMsgType : int
 {

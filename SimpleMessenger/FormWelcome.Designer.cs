@@ -186,8 +186,7 @@
             // 
             // FormWelcome
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.Purple;
             this.ClientSize = new System.Drawing.Size(406, 462);
             this.Controls.Add(this.pictureBoxWelcome);
@@ -199,6 +198,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textBoxName);
             this.Controls.Add(this.menuStripWelcome);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MainMenuStrip = this.menuStripWelcome;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
