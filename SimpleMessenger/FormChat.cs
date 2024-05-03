@@ -130,7 +130,7 @@ public partial class FormChat : Form
             var data = m.Serialize();
 
             Program.App.Client.Listener.SendData(Program.App.Client.ServerIP, MessengerServer.ListenerPort,data);
-            TagUserControl myUsercon = new TagUserControl(Program.App.Info, SendMessageBox.Text, lineNumber);
+            TagUserControl myUsercon = new TagUserControl(Program.App.Info, SendMessageBox.Rtf, lineNumber);
             flowLayoutPanel1.Controls.Add(myUsercon);
             flowLayoutPanel1.VerticalScroll.Value = flowLayoutPanel1.VerticalScroll.Maximum;
             SendMessageBox.Rtf = "";
