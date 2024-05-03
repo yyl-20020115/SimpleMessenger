@@ -69,9 +69,9 @@
             // 
             // listClients
             // 
+            resources.ApplyResources(this.listClients, "listClients");
             this.listClients.BackColor = System.Drawing.Color.MediumOrchid;
             this.listClients.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            resources.ApplyResources(this.listClients, "listClients");
             this.listClients.ForeColor = System.Drawing.Color.Black;
             this.listClients.FormattingEnabled = true;
             this.listClients.Name = "listClients";
@@ -177,8 +177,8 @@
             // 
             // richTxtNewsFeed
             // 
-            this.richTxtNewsFeed.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(224)))), ((int)(((byte)(192)))));
             resources.ApplyResources(this.richTxtNewsFeed, "richTxtNewsFeed");
+            this.richTxtNewsFeed.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(224)))), ((int)(((byte)(192)))));
             this.richTxtNewsFeed.Name = "richTxtNewsFeed";
             this.richTxtNewsFeed.ReadOnly = true;
             // 
@@ -200,9 +200,9 @@
             // 
             // FormMessenger
             // 
-            resources.ApplyResources(this, "$this");
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.Purple;
+            resources.ApplyResources(this, "$this");
             this.Controls.Add(this.labelSelfIP);
             this.Controls.Add(this.labelSelfIPPrompt);
             this.Controls.Add(this.label1);

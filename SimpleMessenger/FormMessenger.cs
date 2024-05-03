@@ -23,11 +23,11 @@ public partial class FormMessenger : Form
         //Giving New Client already existing client list
         foreach (var info in Program.App.Client.ClientDic.Values)
         {
-            if (listClients.Items.Contains(info) == false)
+            if (!listClients.Items.Contains(info))
             {
                 listClients.Items.Add(info);
-                Program.App.Client.NumberoOfMessage[info.ClientID]= 0;
-                Program.App.Client.NumberoOfMessageString[info.ClientID] ="";
+                //Program.App.Client.NumberoOfMessage[info.ClientID]= 0;
+                //Program.App.Client.NumberoOfMessageString[info.ClientID] ="";
                 FormChat newForm = new FormChat(info);
                 Program.App.Forms.Add(info.ClientID, newForm);
                 newForm.Hide();
@@ -43,7 +43,7 @@ public partial class FormMessenger : Form
         Program.App.Client.NewStatus += new SERVER_STATUS(Client_NewMStatus);
         Program.App.Client.NewBuzz += new SERVER_BUZZ(Client_NewBuzz);
         Program.App.Client.DisconnectByServer += new SERVER_DISCONNECTED_BY_SERVER(Client_DisconnectByServer);
-        Program.App.Client.Listener.ServerGone += new ServerNotExist(L_ServerGone);
+        Program.App.Client.Listener.ServerLost += new ServerNotExist(L_ServerGone);
     }
 
 
@@ -137,8 +137,8 @@ public partial class FormMessenger : Form
                     ClientInfo tempinfo = new();
                     tempinfo = Program.App.Client.ClientDic[remoteID];
                     int x = listClients.Items.IndexOf(tempinfo);
-                    Program.App.Client.NumberoOfMessage[tempinfo.ClientID]++;
-                    Program.App.Client.NumberoOfMessageString[tempinfo.ClientID] = "(" + Program.App.Client.NumberoOfMessage[tempinfo.ClientID].ToString() + ")";
+                    //Program.App.Client.NumberoOfMessage[tempinfo.ClientID]++;
+                    //Program.App.Client.NumberoOfMessageString[tempinfo.ClientID] = "(" + Program.App.Client.NumberoOfMessage[tempinfo.ClientID].ToString() + ")";
                     listClients.Items.RemoveAt(x);
                     listClients.Items.Add(tempinfo);
                     listClients.BackColor = Color.Pink;
@@ -148,10 +148,6 @@ public partial class FormMessenger : Form
         
      //throw new NotImplementedException();
     }
-
-
-
-
 
     /// <summary>
     ///  When a name will select from the client List, a chat box for that client will be appeared.
@@ -165,16 +161,16 @@ public partial class FormMessenger : Form
             var c = (ClientInfo)listClients.SelectedItem;
             if (c == null) return;
             ShowChatWindow(c);
-            if (Program.App.Client.NumberoOfMessageString[c.ClientID] != "")
-            {
-                listClients.ClearSelected();
-                listClients.BackColor = Color.MediumOrchid;
-                int x = listClients.Items.IndexOf(c);
-                Program.App.Client.NumberoOfMessage[c.ClientID] = 0;
-                Program.App.Client.NumberoOfMessageString[c.ClientID] = "";
-                listClients.Items.RemoveAt(x);
-                listClients.Items.Add(c);
-            }
+            //if (Program.App.Client.NumberoOfMessageString[c.ClientID] != "")
+            //{
+            //    listClients.ClearSelected();
+            //    listClients.BackColor = Color.MediumOrchid;
+            //    int x = listClients.Items.IndexOf(c);
+            //    Program.App.Client.NumberoOfMessage[c.ClientID] = 0;
+            //    Program.App.Client.NumberoOfMessageString[c.ClientID] = "";
+            //    listClients.Items.RemoveAt(x);
+            //    listClients.Items.Add(c);
+            //}
         }       
     }
 
@@ -204,7 +200,7 @@ public partial class FormMessenger : Form
     {
         if (Program.App.IsServer)
         {
-            Program.App.Server.Dispose();
+            Program.App.Server?.Dispose();
             Program.App.Server = null;
         }
         Program.App.Client.Dispose();
@@ -240,8 +236,8 @@ public partial class FormMessenger : Form
                 if (listClients.Items.Contains(info)==false)
                 {
                     listClients.Items.Add(info);
-                    Program.App.Client.NumberoOfMessage[info.ClientID] = 0;
-                    Program.App.Client.NumberoOfMessageString[info.ClientID] = "";
+                    //Program.App.Client.NumberoOfMessage[info.ClientID] = 0;
+                    //Program.App.Client.NumberoOfMessageString[info.ClientID] = "";
                     FormChat newForm = new(info);
                     Program.App.Forms.Add(info.ClientID, newForm);
                     newForm.Hide();
@@ -340,12 +336,15 @@ public partial class FormMessenger : Form
     /// <param name="e"></param>
     private void btnSendStatus_Click(object sender, EventArgs e)
     {
-        ClientMessage msg = new ClientMessage();
-        msg.Type = (int)ClientMsgType.Status;
-        msg.Status = txtStatus.Text;
+        ClientMessage msg = new()
+        {
+            Type = (int)ClientMessageType.Status,
+            Status = txtStatus.Text
+        };
         msg.Info.ClientID = Program.App.Info.ClientID;
         msg.Info.Name = Program.App.Info.Name;
-        Program.App.Client.Listener.Send(Program.App.ServerIP,12345,msg.Serialize());
+
+        Program.App.Client.Listener.Send(Program.App.ServerIP,MessengerServer.ListenerPort,msg.Serialize());
         txtStatus.Font = new Font(txtStatus.Font, FontStyle.Italic);
         txtStatus.ForeColor = Color.LightGray;
         txtStatus.Text = "";
@@ -354,13 +353,13 @@ public partial class FormMessenger : Form
 
 
 
-    delegate void ServerStatus(ClientInfo info, string sts, ClientMsgType type);
+    delegate void ServerStatus(ClientInfo info, string sts, ClientMessageType type);
     /// <summary>
     /// When Other clients Update their status/Public Message, NewsFeed or Buddy news textbox will be added that news
     /// </summary>
     /// <param name="info"></param>
     /// <param name="sts"></param>
-    void Client_NewMStatus(ClientInfo info, string sts, ClientMsgType type)
+    void Client_NewMStatus(ClientInfo info, string sts, ClientMessageType type)
     {
         if (richTxtNewsFeed.InvokeRequired)
         {
@@ -377,7 +376,7 @@ public partial class FormMessenger : Form
             richTxtNewsFeed.SelectedText = Environment.NewLine + info.Name+":";
             else richTxtNewsFeed.SelectedText = Environment.NewLine + "你" + ":";
             
-            if (type == ClientMsgType.Status)
+            if (type == ClientMessageType.Status)
             {
                 Font font2 = new Font(richTxtNewsFeed.Font, FontStyle.Italic);
                 richTxtNewsFeed.SelectionFont = font2;
@@ -388,7 +387,7 @@ public partial class FormMessenger : Form
                 richTxtNewsFeed.SelectionColor = Color.Black;
                 richTxtNewsFeed.SelectedText = Environment.NewLine + sts + Environment.NewLine;
             }
-            else if (type == ClientMsgType.Join)
+            else if (type == ClientMessageType.Join)
             {
                 Font font2 = new Font(richTxtNewsFeed.Font, FontStyle.Italic);
                 richTxtNewsFeed.SelectionFont = font2;
@@ -399,7 +398,7 @@ public partial class FormMessenger : Form
                 richTxtNewsFeed.SelectionColor = Color.Black;
                 richTxtNewsFeed.SelectedText = Environment.NewLine + Environment.NewLine;
             }
-            else if (type == ClientMsgType.Disconnect)
+            else if (type == ClientMessageType.Disconnect)
             {
                 Font font2 = new Font(richTxtNewsFeed.Font, FontStyle.Italic);
                 richTxtNewsFeed.SelectionFont = font2;
@@ -444,15 +443,15 @@ public partial class FormMessenger : Form
             if (Program.App.Client.ClientDic.ContainsKey(senderID))
             {
                 Program.App.Forms[senderID].GetBuzz(senderID);
-                if (Program.App.Client.NumberoOfMessageString[senderID] != "")
-                {
-                    listClients.BackColor = Color.MediumOrchid;
-                    int x = listClients.Items.IndexOf(Program.App.Client.ClientDic[senderID]);
-                    Program.App.Client.NumberoOfMessage[senderID] = 0;
-                    Program.App.Client.NumberoOfMessageString[senderID] = "";
-                    listClients.Items.RemoveAt(x);
-                    listClients.Items.Add(Program.App.Client.ClientDic[senderID]);
-                }
+                //if (Program.App.Client.NumberoOfMessageString[senderID] != "")
+                //{
+                //    listClients.BackColor = Color.MediumOrchid;
+                //    int x = listClients.Items.IndexOf(Program.App.Client.ClientDic[senderID]);
+                //    Program.App.Client.NumberoOfMessage[senderID] = 0;
+                //    Program.App.Client.NumberoOfMessageString[senderID] = "";
+                //    listClients.Items.RemoveAt(x);
+                //    listClients.Items.Add(Program.App.Client.ClientDic[senderID]);
+                //}
 
             }
         }
@@ -473,15 +472,18 @@ public partial class FormMessenger : Form
     {
         var m = new ClientMessage
         {
-            Type = (int)ClientMsgType.Disconnect
+            Type = (int)ClientMessageType.Disconnect
         };
         m.Info.ClientID = Program.App.Info.ClientID;
         m.Info.Name = Program.App.Info.Name;
         m.From = Program.App.Info.ClientID;
-        Program.App.Client.Listener.Send(Program.App.ServerIP, 12345, m.Serialize());
+
+        var data = m.Serialize();
+
+        Program.App.Client.Listener.Send(Program.App.ServerIP, MessengerServer.ListenerPort, data);
         if (Program.App.IsServer)
         {
-            Program.App.Server.Dispose();
+            Program.App.Server?.Dispose();
             Program.App.Server = null;
         }
         Program.App.Client.Dispose();

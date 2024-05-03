@@ -59,7 +59,7 @@ public partial class FormWelcome : Form
             //Server is also a Client. So creating a client.
             Program.App.Client = new MessengerClient();
             Program.App.Client.ConnectionStatus += new SERVER_CONNECTION_DELIGATE(Client_ConnectionStatus);
-            Program.App.Client.Start("127.0.0.1", textBoxName.Text);
+            Program.App.Client.Start("127.0.0.1",MessengerServer.ListenerPort, textBoxName.Text);
         }
         else
             MessageBox.Show("请首先输入你的名字!");
@@ -82,7 +82,7 @@ public partial class FormWelcome : Form
             // Creating Client...
             Program.App.Client = new MessengerClient();
             Program.App.Client.ConnectionStatus += new SERVER_CONNECTION_DELIGATE(Client_ConnectionStatus);
-            Program.App.Client.Start(txtIP.Text, Program.App.Info.Name);
+            Program.App.Client.Start(txtIP.Text,MessengerServer.ListenerPort, Program.App.Info.Name);
         }
         else
         {
@@ -122,7 +122,7 @@ public partial class FormWelcome : Form
             //Closing All thread that I started For connecting.
             if (Program.App.IsServer)
             {
-                Program.App.Server.Dispose();
+                Program.App.Server?.Dispose();
                 Program.App.Server = null;
             }
             Program.App.Client?.Dispose();

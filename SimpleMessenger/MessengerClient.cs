@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Timers;
 
 namespace SimpleMessenger;
@@ -7,16 +9,10 @@ public delegate void SERVER_CONNECTION_DELIGATE(string serverIP, bool success);
 public delegate void SERVER_JOIN(ClientInfo info);
 public delegate void SERVER_LEAVE(ClientInfo info);
 public delegate void SERVER_MSG(ClientInfo info, string msg, int remoteID, int line);
-public delegate void SERVER_STATUS(ClientInfo info, string sts, ClientMsgType type);
+public delegate void SERVER_STATUS(ClientInfo info, string sts, ClientMessageType type);
 public delegate void SERVER_List(List<ClientInfo> l);
 public delegate void SERVER_BUZZ(int senderID);
 public delegate void SERVER_DISCONNECTED_BY_SERVER();
-
-/// <summary>
-///  ************************** This Class is  For CLIENT****************************
-///  ****Here Strat client's SocketListening thread, Message Analysis happens,and hold other neccesary info for client*********.
-/// </summary>
-
 
 public class MessengerClient
 {
@@ -35,12 +31,13 @@ public class MessengerClient
     
 
     private Dictionary<int, ClientInfo> _ClientDic;
-    public int[] NumberoOfMessage = new int[1000];
-    public string[] NumberoOfMessageString = new string[1000];
+    //public List<int> NumberoOfMessage = [];
+    //public List<string> NumberoOfMessageString = [];
     public bool MessageSound = true;
     private ClientInfo Me;
     private SocketListener _Listener;
     public string ServerIP;
+    public int ServerPort;
     public string SelfIP;
     readonly Timer Timer = new(3000);
     readonly Timer TimerForAlive = new(3000);
@@ -74,9 +71,10 @@ public class MessengerClient
     /// </summary>
     /// <param name="serverIP"></param>
     /// <param name="name"></param>
-    public void Start(string serverIP,string name)
+    public void Start(string serverIP,int serverPort, string name)
     {
         this.ServerIP = serverIP;
+        this.ServerPort = serverPort;
         Me = new ClientInfo
         {
             IP = Program.OwnIP,
@@ -91,17 +89,16 @@ public class MessengerClient
         ClientMessage msg = new()
         {
             Info = Me,
-            Type = (int)ClientMsgType.Join
+            Type = (int)ClientMessageType.Join
         };
-        Listener.Send(serverIP,12345,msg.Serialize());
+
+        Listener.Send(this.ServerIP, this.ServerPort, msg.Serialize());
+
         Timer.Elapsed += new ElapsedEventHandler(Timer_Elapsed);
         Timer.Start();
         TimerForAlive.Elapsed += new ElapsedEventHandler(TimerForAlive_Elapsed);
         TimerForAlive.Start();
     }
-
-
-
 
     /// <summary>
     /// It will send a alive message within 3 seconds.
@@ -112,10 +109,12 @@ public class MessengerClient
     {
         TimerForAlive.Stop();
         //throw new NotImplementedException();
-        ClientMessage m = new ClientMessage();
-        m.Type = (int)ClientMsgType.Alive;
-        m.Info = Program.App.Info;
-        Listener.Send(Program.App.ServerIP,12345,m.Serialize());
+        ClientMessage m = new()
+        {
+            Type = (int)ClientMessageType.Alive,
+            Info = Program.App.Info
+        };
+        Listener.Send(Program.App.ServerIP,this.ServerPort, m.Serialize());
         TimerForAlive.Start();
     }
 
@@ -141,76 +140,62 @@ public class MessengerClient
     /// <param name="dataAvailable"></param>
     private void GotClientMessage(byte[] data, int dataAvailable)
     {
-
-        var msg = ClientMessage.DeSerialize(data, 0, dataAvailable);
-
+        var message = ClientMessage.DeSerialize(data);
         //Checking Which Type of Message Client got.
-        switch ((ClientMsgType)msg.Type)
+        switch ((ClientMessageType)message.Type)
         {
-
-            case ClientMsgType.ClientList:
+            case ClientMessageType.ClientList:
 
                 Timer.Stop();
-                Program.App.Info.ClientID = msg.Info.ClientID;        
-                foreach (ClientInfo info in msg.CurrentClients)
+                Program.App.Info.ClientID = message.Info.ClientID;        
+                foreach (ClientInfo info in message.CurrentClients)
                 {
                     if (ClientDic.ContainsKey(info.ClientID) == false)
                         ClientDic.Add(info.ClientID, info);
                 }
-                if (ConnectionStatus!=null)
-                ConnectionStatus(ServerIP, true);
+                ConnectionStatus?.Invoke(ServerIP, true);
                 break;
 
 
 
-            case ClientMsgType.clientListForALL:
+            case ClientMessageType.ClientListForALL:
 
-                msg.CurrentClients.Add(msg.Info);
-                foreach (ClientInfo info in msg.CurrentClients)
+                message.CurrentClients.Add(message.Info);
+                foreach (ClientInfo info in message.CurrentClients)
                 {
                     if (ClientDic.ContainsKey(info.ClientID) == false)
                         ClientDic.Add(info.ClientID, info);
                 }
-                if(NewList!=null)
-                NewList(msg.CurrentClients);
-                if (NewStatus != null)
-                    NewStatus(msg.Info, msg.Status, ClientMsgType.Join);
+                NewList?.Invoke(message.CurrentClients);
+                NewStatus?.Invoke(message.Info, message.Status, ClientMessageType.Join);
                 break;
            
 
 
-            case ClientMsgType.Msg:
-
-                if(NewMsg!=null) 
-                    NewMsg(msg.Info, msg.Msg, msg.From,msg.LineNumb);
+            case ClientMessageType.Msg:
+                NewMsg?.Invoke(message.Info, message.Msg, message.From, message.LineNumb);
                 break;
 
 
 
-            case ClientMsgType.Disconnect:
-                if (NewStatus != null)
-                    NewStatus(msg.Info, msg.Status, ClientMsgType.Disconnect);
-                if (ClientDic.ContainsKey(msg.Info.ClientID) == true)
-                    ClientDic.Remove(msg.Info.ClientID);
-                if (ClientLeaved!=null)
-                ClientLeaved(msg.Info);
+            case ClientMessageType.Disconnect:
+                NewStatus?.Invoke(message.Info, message.Status, ClientMessageType.Disconnect);
+                if (ClientDic.ContainsKey(message.Info.ClientID) == true)
+                    ClientDic.Remove(message.Info.ClientID);
+                ClientLeaved?.Invoke(message.Info);
                 break;
 
-            case ClientMsgType.Status:
-
-                if(NewStatus!=null)
-                    NewStatus(msg.Info,msg.Status, ClientMsgType.Status);
+            case ClientMessageType.Status:
+                NewStatus?.Invoke(message.Info, message.Status, ClientMessageType.Status);
                 break;
 
-            case ClientMsgType.Buzz:
+            case ClientMessageType.Buzz:
 
-                if (NewBuzz != null)
-                    NewBuzz(msg.From);
+                NewBuzz?.Invoke(message.From);
                 break;
 
-            case ClientMsgType.disconnectedByServer:
-                if (DisconnectByServer!=null)
-                DisconnectByServer();
+            case ClientMessageType.DisconnectedByServer:
+                DisconnectByServer?.Invoke();
                 break;
         }
     }
@@ -224,10 +209,10 @@ public class MessengerClient
     {
         Listener.RunServer = false;
 
-        foreach (var f in Program.App.Forms.Values)
+        foreach (var form in Program.App.Forms.Values)
         {
-            f.Close();
-            f.Dispose();
+            form.Close();
+            form.Dispose();
 
         }
         Program.App.Forms.Clear();

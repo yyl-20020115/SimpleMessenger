@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Xml.Serialization;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 
 namespace SimpleMessenger;
 
 [Serializable]
-public enum ClientMsgType : int
+public enum ClientMessageType : int
 {
     Msg = 0,
     Join,
@@ -16,42 +18,45 @@ public enum ClientMsgType : int
     Disconnect,
     Alive,
     ClientList,
-    clientListForALL,
+    ClientListForALL,
     Buzz,
-    disconnectedByServer,
+    DisconnectedByServer,
     Client_Image,
     Status
 }
 
-[Serializable]
+
 public class ClientMessage
 {
+    [YamlMember]
     public int Type;
+    [YamlMember]
     public int Port;
-    public string Msg;
+    [YamlMember]
+    public string Msg = "";
+    [YamlMember]
     public string Status;
-    public string To;
+    [YamlMember]
+    public string To = "";
+    [YamlMember]
     public int LineNumb;
-    public List<ClientInfo> CurrentClients;
-    public string SourceIP;
-    public ClientInfo Info;
+    [YamlMember]
+    public List<ClientInfo> CurrentClients = [];
+    [YamlMember]
+    public string SourceIP = "";
+    [YamlMember]
+    public ClientInfo Info = new();
+    [YamlMember]
     public int From;
-    public byte[] ProfilePic;
+    [YamlMember]
+    public byte[] ProfilePic = new byte[1];
 
     /// <summary>
     /// Defalt constructor.
     /// </summary>
     public ClientMessage()
     {
-        CurrentClients = [];
-        ProfilePic = new byte[1];
-        Info = new();
-        Msg = "";
-        SourceIP = "";
-        To = "";
     }
-
-
 
     /// <summary>
     /// Serializing Object.
@@ -59,27 +64,10 @@ public class ClientMessage
     /// <returns></returns>
     public byte[] Serialize()
     {
-        var x = new XmlSerializer(this.GetType());
-        using var ms = new MemoryStream();
-        x.Serialize(ms, this);
-        return ms.GetBuffer();
+        var serializer = new SerializerBuilder().Build();
+        var result = serializer.Serialize(this);
+        return Encoding.UTF8.GetBytes(result);
     }
-
-
-    /// <summary>
-    /// DeSerialize Object
-    /// </summary>
-    /// <param name="rawString"></param>
-    /// <returns></returns>
-    public static ClientMessage DeSerialize(string rawString)
-    {
-        var x = new XmlSerializer(typeof(ClientMessage));
-        using var ms = new MemoryStream();
-        var data = Encoding.ASCII.GetBytes(rawString);
-        ms.Write(data, 0, data.Length);
-        return (ClientMessage)x.Deserialize(ms);
-    }
-
 
     /// <summary>
     /// Overload DeSerialize.
@@ -88,13 +76,9 @@ public class ClientMessage
     /// <param name="offset"></param>
     /// <param name="length"></param>
     /// <returns></returns>
-    public static ClientMessage DeSerialize(byte[] asciiBytes, int offset, int length)
+    public static ClientMessage DeSerialize(byte[] bytes)
     {
-        var x = new XmlSerializer(typeof(ClientMessage));
-        //string data = Encoding.ASCII.GetString(asciiBytes, offset, length);
-        //byte[] asciiData=
-        using var ms = new MemoryStream(asciiBytes, false);
-        //ms.Write(asciiBytes, offset, length);
-        return (ClientMessage)x.Deserialize(ms);
+        var deserializer = new DeserializerBuilder().Build();
+        return deserializer.Deserialize<ClientMessage>(Encoding.UTF8.GetString(bytes));
     }
 }

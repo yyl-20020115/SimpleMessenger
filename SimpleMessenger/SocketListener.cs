@@ -1,19 +1,23 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using System.Threading;
 using System.Net.Sockets;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace SimpleMessenger;
 
 
-public delegate void SocketListenerMsg(byte[] data,int dataAvailable);
+public delegate void SocketListenerMsg(byte[] data, int dataAvailable);
 public delegate void ServerNotExist();
 
 public class SocketListener
 {
+    public static string SMMP_MAGIC = "SMMP";
+    public static int MaxMessageLength = int.MaxValue;
 
     //Introducing a custom event
-    public event ServerNotExist ServerGone;
+    public event ServerNotExist ServerLost;
 
     public int Port;
     private bool serverRunning = true;
@@ -21,12 +25,11 @@ public class SocketListener
     private readonly Thread listenerThread = null;
     private readonly TcpListener listener;
 
-    
+
     public SocketListener(int port, SocketListenerMsg handler)
     {
         _handler = handler;
         Port = port;
-
 
         listener = new TcpListener(IPAddress.Any, Port);
         listener.Start();
@@ -42,40 +45,46 @@ public class SocketListener
     /// </summary>
     public void ServerThread()
     {
-        var dataAvailable = 0;
-        var msg = "";
-        var remoteIP="";
         while (serverRunning)
         {
-            
-                if (listener.Pending())
+            if (!listener.Pending())
+                Thread.Sleep(10);
+            else
+            {
+                var client = listener.AcceptTcpClient();
+                // read data if available
+                if (client.Available > 0)
                 {
-                    var c = listener.AcceptTcpClient();
-
-                    // read data if available
-                    if (c.Available > 0)
+                    var stream = client.GetStream();
+                    if (stream.CanRead)
                     {
-                        var ns = c.GetStream();
-                        if (ns.CanRead)
+                        var buffer = new byte[SMMP_MAGIC.Length];
+                        stream.Read(buffer, 0, buffer.Length);
+                        var magic = Encoding.ASCII.GetString(buffer);
+                        if (magic == SMMP_MAGIC)
                         {
-                            byte[] data = new byte[1024 * 8];
-                            dataAvailable = ns.Read(data, 0, data.Length);
-                            msg = Encoding.ASCII.GetString(data, 0, dataAvailable);
-                            remoteIP = ((IPEndPoint)c.Client.RemoteEndPoint).ToString();
-                            // call delegate
-                            _handler(data, dataAvailable);
-                            
+                            stream.Read(buffer, 0, buffer.Length);
+                            var length = BitConverter.ToInt32(buffer, 0);
+                            if (length <= MaxMessageLength)
+                            {
+                                buffer = new byte[length];
+                                var dataAvailable = stream.Read(buffer, 0, buffer.Length);
+                                if (dataAvailable == length)
+                                {
+                                    var msg = Encoding.ASCII.GetString(buffer, 0, dataAvailable);
+                                    var remoteIP = ((IPEndPoint)client.Client.RemoteEndPoint).ToString();
+                                    // call delegate
+                                    _handler(buffer, dataAvailable);
+                                }
+                            }
                         }
                     }
-                    // close socket
-                    c.Close();
-
                 }
-                else Thread.Sleep(10);
+                // close socket
+                client.Close();
+            }
         }
-        
         listener.Stop();
-        
     }
 
 
@@ -104,41 +113,31 @@ public class SocketListener
     /// <param name="port"></param>
     /// <param name="data"></param>
     /// <param name="broadCast"></param>
-    public void Send(string ip, int port, byte[] data,bool broadCast=false)
+    public void Send(string ip, int port, byte[] data, bool broadCast = false)
     {
-        var s = new Thread(new ParameterizedThreadStart(SendingThread));
-        s.Start(new object[] { ip, port, data, broadCast });      
-    }
-
-
-
-    /// <summary>
-    /// Start a thread for send meaage, AS it can take time.
-    /// </summary>
-    /// <param name="param"></param>
-    private void SendingThread(object param)
-    {
-        object[] p=(object[]) param;
-        string ip = (string)p[0];
-        int port = (int)p[1];
-        byte[] data = (byte[])p[2];
-        //bool broadCast = (bool)p[3];
-        try
-        {
-           
-            var c = new TcpClient(ip,port);
-            c.GetStream().Write(data, 0, data.Length);
-            c.Close();
-       }
-        catch
-        {
-            if (RunServer == false)
-                return;
-            if (Program.App.IsServer == false)
+        Task.Run(() => {
+            try
             {
-                ServerGone?.Invoke();
-                Thread.Sleep(300);
+                using var client = new TcpClient(ip, port);
+                using var stream = client.GetStream();
+                //header:
+                //SimpleMessage Message Packet : 4 Bytes
+                //Content Length : 4 Bytes
+                //Content Text : N Bytes 
+                stream.Write(Encoding.ASCII.GetBytes(SMMP_MAGIC), 0, SMMP_MAGIC.Length);
+                stream.Write(BitConverter.GetBytes(data.Length), 0, sizeof(int));
+                stream.Write(data, 0, data.Length);
             }
-        }
+            catch
+            {
+                if (!RunServer)
+                    return;
+                if (!Program.App.IsServer)
+                {
+                    ServerLost?.Invoke();
+                    Thread.Sleep(300);
+                }
+            }
+        });
     }
 }

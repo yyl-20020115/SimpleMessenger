@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Media;
+using System.IO;
+using System.Text;
 
 namespace SimpleMessenger;
 
@@ -42,6 +44,7 @@ public partial class FormChat : Form
     private void FormChat_Load(object sender, EventArgs e)
     {
         this.Text = client.Name;
+        this.SendMessageBox.AllowDrop = true;
     }
 
 
@@ -117,27 +120,30 @@ public partial class FormChat : Form
     {
         if (SendMessageBox.Text != "")
         {
+           
             var m = new ClientMessage
             {
-                Type = (int)ClientMsgType.Msg,
+                Type = (int)ClientMessageType.Msg,
                 Info = client,
-                Msg = SendMessageBox.Text
+                Msg = SendMessageBox.Rtf
             };
-            string[] line = SendMessageBox.Lines;
+            var lines = SendMessageBox.Lines;
             int y;
-            lineNumber = line.Length;
-            for (int i = 0; i < line.Length; i++)
+            lineNumber = lines.Length;
+            for (int i = 0; i < lines.Length; i++)
             {
-                y = line[i].Length;
+                y = lines[i].Length;
                 lineNumber += ((y /20));
             }
             m.LineNumb = lineNumber;
             m.From = Program.App.Info.ClientID;
-            Program.App.Client.Listener.Send(Program.App.Client.ServerIP, 12345, m.Serialize());
+            var data = m.Serialize();
+
+            Program.App.Client.Listener.Send(Program.App.Client.ServerIP, MessengerServer.ListenerPort,data);
             TagUserControl myUsercon = new TagUserControl(Program.App.Info, SendMessageBox.Text, lineNumber);
             flowLayoutPanel1.Controls.Add(myUsercon);
             flowLayoutPanel1.VerticalScroll.Value = flowLayoutPanel1.VerticalScroll.Maximum;
-            SendMessageBox.Text = "";
+            SendMessageBox.Rtf = "";
         }
     }
     
@@ -241,11 +247,12 @@ public partial class FormChat : Form
     {
         ClientMessage m = new()
         {
-            Type = (int)ClientMsgType.Buzz,
+            Type = (int)ClientMessageType.Buzz,
             Info = client,
             From = Program.App.Info.ClientID
         };
-        Program.App.Client.Listener.Send(Program.App.Client.ServerIP, 12345, m.Serialize());
+
+        Program.App.Client.Listener.Send(Program.App.Client.ServerIP, MessengerServer.ListenerPort, m.Serialize());
     }
 
 }

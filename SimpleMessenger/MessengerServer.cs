@@ -12,6 +12,8 @@ namespace SimpleMessenger;
 
 public class MessengerServer
 {
+    public static int ListenerPort = 12345;
+
     int lastClientID = 0;
     private readonly Dictionary<int, ClientInfo> MyList = [];
     private readonly Dictionary<int, ClientInfo> AliveList =[];
@@ -27,7 +29,7 @@ public class MessengerServer
     public MessengerServer(string ownIP)
     {
         this.ownIP = ownIP;
-        listener = new SocketListener(12345,MsgFromClient);
+        listener = new SocketListener(ListenerPort, MsgFromClient);
         serverTimer.Elapsed += new ElapsedEventHandler(ServerTimer_Elapsed);
         serverTimer.Start();
     }
@@ -51,7 +53,7 @@ public class MessengerServer
         {
             foreach (var info in AliveList.Values)
             {
-                diff = now - info.lastAlivemsg;
+                diff = now - info.LastAliveMessage;
                 res = diff.Seconds.ToString();
                 int x = int.Parse(res);
                 if (x >= 6)
@@ -61,17 +63,17 @@ public class MessengerServer
                         MyList.Remove(info.ClientID);
                         ClientMessage M = new()
                         {
-                            Type = (int)ClientMsgType.Disconnect,
+                            Type = (int)ClientMessageType.Disconnect,
                             Info = info
                         };
                         byte[] data3 = M.Serialize();
-                        foreach (var c in MyList.Values)
+                        foreach (var clients in MyList.Values)
                         {
-                            listener.Send(c.IP, c.ListenPort, data3);
+                            listener.Send(clients.IP, clients.ListenPort, data3);
                         }
                         ClientMessage m = new()
                         {
-                            Type = (int)ClientMsgType.disconnectedByServer
+                            Type = (int)ClientMessageType.DisconnectedByServer
                         };
                         listener.Send(info.IP, info.ListenPort, m.Serialize());
                     }
@@ -92,29 +94,28 @@ public class MessengerServer
     /// <param name="dataAvailable"></param>
     private void MsgFromClient(byte[] data,int dataAvailable)
     {
-        var msg = ClientMessage.DeSerialize(data,0,dataAvailable);
+        var msg = ClientMessage.DeSerialize(data);
 
-        switch ((ClientMsgType)msg.Type)
+        switch ((ClientMessageType)msg.Type)
         { 
-
-            case ClientMsgType.Join:
+            case ClientMessageType.Join:
 
                 ClientMessage m = new()
                 {
-                    Type = (int)ClientMsgType.ClientList
+                    Type = (int)ClientMessageType.ClientList
                 }; // this m will sent to new comer.
                 m.Info.ClientID = ++lastClientID;
 
                 msg.Info.ClientID = m.Info.ClientID; // this msg will sent to other clients for notify about new comer.
-                msg.Type =(int)ClientMsgType.clientListForALL;
-                byte[] data2 = msg.Serialize();
+                msg.Type =(int)ClientMessageType.ClientListForALL;
+                var data2 = msg.Serialize();
                 lock (Program.MyLocker)
                 {
-                    foreach (var c in MyList.Values)
+                    foreach (var clients in MyList.Values)
                     {
-                        m.CurrentClients.Add(c);
+                        m.CurrentClients.Add(clients);
                         // Send all clients the join msg
-                        listener.Send(c.IP, c.ListenPort, data2);
+                        listener.Send(clients.IP, clients.ListenPort, data2);
                     }
 
                     // Sending new client server's client list
@@ -126,19 +127,19 @@ public class MessengerServer
 
 
 
-            case ClientMsgType.Msg:
+            case ClientMessageType.Msg:
 
                 listener.Send(msg.Info.IP, msg.Info.ListenPort,data);
                 break;
 
 
-            case ClientMsgType.Disconnect:
+            case ClientMessageType.Disconnect:
                 lock (Program.MyLocker)
                 {
                     MyList.Remove(msg.Info.ClientID);
                     ClientMessage M = new()
                     {
-                        Type = (int)ClientMsgType.Disconnect,
+                        Type = (int)ClientMessageType.Disconnect,
                         Info = msg.Info
                     };
                     byte[] data3 = M.Serialize();
@@ -155,7 +156,7 @@ public class MessengerServer
                 break;
 
 
-            case ClientMsgType.Status:
+            case ClientMessageType.Status:
 
                 foreach (var c in MyList.Values)
                 {
@@ -165,14 +166,14 @@ public class MessengerServer
 
 
 
-            case ClientMsgType.Buzz:
+            case ClientMessageType.Buzz:
 
                 listener.Send(msg.Info.IP, msg.Info.ListenPort,data);
                 break;
 
-            case ClientMsgType.Alive:
+            case ClientMessageType.Alive:
 
-                msg.Info.lastAlivemsg = DateTime.Now;
+                msg.Info.LastAliveMessage = DateTime.Now;
 
                 lock(Program.AliveLocker)
                 {

@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.SendMessageBox = new System.Windows.Forms.TextBox();
+            this.SendMessageBox = new System.Windows.Forms.RichTextBox();
             this.btnSend = new System.Windows.Forms.Button();
             this.btnBuZZ = new System.Windows.Forms.Button();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
@@ -126,7 +126,7 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox SendMessageBox;
+        private System.Windows.Forms.RichTextBox SendMessageBox;
         private System.Windows.Forms.Button btnSend;
         private System.Windows.Forms.Button btnBuZZ;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
